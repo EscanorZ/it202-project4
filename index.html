@@ -1,0 +1,325 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!--include everything needed from our Material Design components and apis-->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Project4</title>
+	<link href="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.css" rel="stylesheet">
+	<script src="https://unpkg.com/material-components-web@v4.0.0/dist/material-components-web.min.js"></script>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="style.css">
+  <!--Styling our page -->
+  <style>
+    body{
+      background-color: black;
+      color: white;
+    }
+    :root {
+      --mdc-theme-primary: navy;
+     
+    }
+    .view {
+      display:none;
+    }
+    #addTheCountry{
+       margin: 10px;
+      --mdc-theme-primary:red;
+      color:white;
+}
+    #country{
+      width: 132px;
+    height: 27px;
+    padding-top: 0px;
+    padding-left: 0px;
+    padding-bottom: 0px;
+    padding-right: 0px;
+     color:white;
+    
+    }
+    
+    #chartsC{
+    --mdc-theme-primary:green;
+          margin:150px;
+        margin-left:0px;
+    }
+
+    body {margin: 0;}
+    main {margin-left: 8px;}
+  </style>
+</head>
+  <title> Project 4</title>
+<!-- Our body class making some basic buttons and preparing our data to be inputted-->
+<body class="mdc-typography--body1">
+	<header class="mdc-top-app-bar">
+		<div class="mdc-top-app-bar__row">
+			<section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+				
+      <span class="mdc-top-app-bar__title">Covid 19 Grapher</span>
+    </section>
+    <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
+      <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" aria-label="state" data-inputS="Select_Country">Select_Country</button>
+      <button class="material-icons mdc-top-app-bar__action-item mdc-icon-button" data-inputS="chart" aria-label="leggo">show_chart</button>
+    </section>
+  </div>
+</header>
+<main class="mdc-top-app-bar--fixed-adjust">
+
+<div class="inputS" id="Select_Country">
+<h1 class="mdc-typography--headline">Select_Country</h1>
+<p> Chart Countries</p>
+<input id="country" list="countries" class="mdc-text-field__input" >
+
+<datalist id="countries">
+
+</datalist> 
+<br>
+<button id="addTheCountry" class="mdc-button mdc-button--raised">
+  <div class="mdc-button__ripple"></div>
+  <span class="mdc-button__label">Add country</span>
+</button>
+<div id="selectedCountries">
+ 
+  
+  
+  
+  </div>
+<button id="chartsC" class="mdc-button mdc-button--raised">
+  <div class="mdc-button__ripple"></div>
+  <span class="mdc-button__label">Chart Countries</span>
+</button>
+  </div>  
+<div class="inputS" id="table">
+  <h1 class="mdc-typography--headline">Covid 19 cases</h1>
+<div class="mdc-data-table">
+  <table class="mdc-data-table__table" aria-label="Covid cases by date">
+    <thead>
+  
+    </thead>
+     <tbody class="mdc-data-table__content">
+     </tbody></table></div> 
+</div>
+<div class="inputS" id="chart">
+  <h1 class="mdc-typography--2">Chart</h1>
+  <div id="covidChart"></div>
+</div>
+
+</main>
+
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script>
+      google.charts.load('current', {'packages':['corechart']});
+      //google.charts.setOnLoadCallback(drawChart);
+      // lets make an empty array and then reference the json file we need to run computations.
+      let countries_Array = [];
+      let static_URL = "https://pomber.github.io/covid19/timeseries.json";
+
+      let urlObject;
+      // we will set a variable equal to the values we get in the json file. 
+      // At first I thought i needed to enter all the option values manually into the datalist X.X
+      let loadData = (json) => {
+        urlObject = json;
+
+        for (k in urlObject) {
+          let opt = document.createElement("OPTION");
+          opt.value = k;
+          document.querySelector("#countries").appendChild(opt);
+        }
+
+      }
+  </script>
+<script>
+      let hide = () => {
+        document.querySelectorAll(".inputS")
+          .forEach( item => {
+            item.style.display = "none";
+          });
+      }
+
+     
+
+      let addToCountriesList = (name) => {
+        countries_Array.push(name);
+        document.querySelector("#selectedCountries")
+          .textContent = countries_Array.toString()+"\n";
+        
+          
+      }
+      //handle click 
+    //console.log(item.href); gives full reference
+   // console.log(item.getAttribute("href")); // will get id selector
+  </script>
+  <script>
+ // now we can creat our data table using es6
+      let clearDataTable = () => {
+        
+     // we will reference tbody and thead and append
+        let tableBody = document.querySelector("table tbody");
+        
+        let childZ = tableBody.lastElementChild;  
+        while (childZ) { 
+            tableBody.removeChild(child); 
+            childZ = tableBody.lastElementChild; 
+        }
+
+   
+        let tableHead = document.querySelector("table thead");
+        
+        childZ = tableHead.lastElementChild;  
+        while (childZ) { 
+            tableHead.removeChild(child); 
+            childZ = tableHead.lastElementChild; 
+        }
+
+
+
+      }
+
+      let createDataTable = () => {
+        let colu = document.createElement("th");
+        colu.classList.add("mdc-data-table__header-cell", "mdc-data-table__header-cell--numeric");
+        colu.setAttribute("scope","col");
+        colu.setAttribute("role","colu");
+        
+        
+  
+        let headerRow = document.createElement("tr");
+        headerRow.classList.add("mdc-data-table__header-row");
+
+       
+        let dateHeader = colu.cloneNode(true);
+        dateHeader.classList.remove("mdc-data-table__header-cell--numeric");
+        dateHeader.textContent = "Date Recorded"
+
+        headerRow.appendChild(dateHeader);
+
+
+        document.querySelector("table thead")
+            .appendChild(headerRow);
+
+     
+        let rowsOfGraph = [];
+
+        
+        let dates = urlObject[countries_Array[0]].map(item => {return item["date"]})
+
+        rowsOfGraph.push(dates);
+         
+     
+        for (let c of countries_Array) {
+          let countHead = colu.cloneNode(true);
+          countHead.textContent = c;
+          document.querySelector("table thead tr")
+            .appendChild(countHead);
+
+
+          
+          let countryData =  urlObject[c].map(item => {return item["confirmed"]})
+
+          rowsOfGraph.push(countryData);
+        }
+        for (let i=0; i< rowsOfGraph[0].length; i++) {
+          let tr =  document.createElement("tr");
+          tr.classList.add("mdc-data-table__row");
+
+          for (let k=0; k < rowsOfGraph.length; k++) {
+           let td = document.createElement("td")
+           td.classList.add("mdc-data-table__cell")
+           if (k > 0) {
+             td.classList.add("mdc-data-table__cell--numeric")
+           } 
+           td.textContent = rowsOfGraph[k][i];
+           tr.appendChild(td);
+          }
+          document.querySelector("table tbody")
+            .appendChild(tr);
+        }
+      }
+  </script>
+  <script>
+       document.querySelector("#addTheCountry")
+        .addEventListener("click",(e) => {
+          let countryName = document.querySelector("#country").value;
+          addToCountriesList(countryName);
+        });
+
+      document.querySelector("#chartsC")
+        .addEventListener("click", (e) => {
+          clearDataTable();
+          createDataTable();
+          show_Current("table");
+          drawChart();
+        });
+
+
+
+      document.querySelectorAll(".mdc-top-app-bar__action-item")
+        .forEach( (element) => {
+          element.addEventListener("click", (e) => {
+            let inputSID = e.target.getAttribute("data-inputS");
+            show_Current(inputSID);
+          })
+        })  
+
+      window.addEventListener("load",() => {
+        fetch(static_URL)
+          .then (response => response.json())
+          .then (json => {
+            loadData(json);
+          })
+
+      });
+
+    
+       let show_Current = (id) => {
+        hide(); 
+        document.querySelector(`#${id}`).style.display = "block"
+      }
+  </script>
+  <script>
+      drawChart = () => {
+        let chartData = [];
+
+        let header = ["date"];
+        for (let c of countries_Array) {
+          header.push(c);
+        }
+
+        chartData.push(header);
+
+        for (let i = 0; i < urlObject[countries_Array[0]].length; i++) {
+          // for each row create an array
+          let rowsOfGraph = [];
+          rowsOfGraph.push(urlObject[countries_Array[0]][i]["date"]);
+          
+          for (let c of countries_Array) {
+            rowsOfGraph.push(urlObject[c][i]["confirmed"]);
+          }
+          chartData.push(rowsOfGraph); 
+        }
+        
+
+        var data = google.visualization.arrayToDataTable(chartData);
+
+        var options = {
+          title: "Covid-19 Confirmed Cases",
+          curveType: 'function',
+          width: window.innerWidth * .9,
+          height: window.innerHeight * .9,
+          legend: { position: 'top'}
+        };
+
+        var chart = new google.visualization.BarChart(document.querySelector('#covidChart'));
+
+        chart.draw(data, options);
+      }
+
+   
+
+
+    </script>
+  </body>
+</html>
